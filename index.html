@@ -6,6 +6,7 @@
     <script src="http://ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js"></script>
     <script defer type="text/javascript">
       $(document).on('ready', () => {
+        let isActive;
         let id;
         const ajax = () => {
           $.ajax('/random').done((res) => {
@@ -19,10 +20,16 @@
         };
         const interval = 5000;
 
+        const openedAt = Date.now();
+        let _tabsId = localStorage.getItem('tabsId');
+        let tabsId = _tabsId ? JSON.parse(_tabsId) : [];
+        tabsId.push(openedAt);
+        localStorage.setItem('tabsId', JSON.stringify(tabsId));
+        localStorage.setItem('activeTabId', openedAt);
+  
         function start() {
-          localStorage.setItem('openedAt', Date.now());
+          isActive = true;
           id = setInterval(() => {
-            // localStorage.setItem('lastRequest', Date.now());
             ajax();
           }, interval);
         };
@@ -31,12 +38,24 @@
         $('.button').on('click', ajax);
 
         window.onstorage = function(e) {
-          e.key === 'openedAt' && e.newValue && id && clearInterval(id);
-          e.key === 'openedAt' && !e.newValue && start();
+          // debugger
+          if (e.key !== 'activeTabId') { return };
+          if (+e.newValue === openedAt) {
+            start();
+          } else {
+            clearInterval(id)
+          } 
         }
 
         window.onbeforeunload = function() {
-          localStorage.setItem('openedAt', '');
+          // debugger
+          if (isActive) {
+            let tabsId = JSON.parse(localStorage.getItem('tabsId'));            
+            let idx = tabsId.indexOf(openedAt);
+            tabsId.splice(idx, 1);
+            localStorage.setItem('tabsId', JSON.stringify(tabsId));
+            localStorage.setItem('activeTabId', tabsId[0]);
+          }
         }
       })
     </script>
