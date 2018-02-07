@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <title>Pooling</title>
+    <script src="http://ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js"></script>
+    <script defer type="text/javascript">
+      $(document).on('ready', () => {
+        let id;
+        const ajax = () => {
+          $.ajax('/random').done((res) => {
+            console.log(res, new Date);
+            let notification = new Notification(`Hi there! ${new Date}`);
+            notification.onclick = event => {
+              event.preventDefault();
+              window.open('http://localhost:3000/admin/planner', '_blank');
+            }
+          });
+        };
+        const interval = 5000;
+
+        function start() {
+          localStorage.setItem('openedAt', Date.now());
+          id = setInterval(() => {
+            // localStorage.setItem('lastRequest', Date.now());
+            ajax();
+          }, interval);
+        };
+        start();
+
+        $('.button').on('click', ajax);
+
+        window.onstorage = function(e) {
+          e.key === 'openedAt' && e.newValue && id && clearInterval(id);
+          e.key === 'openedAt' && !e.newValue && start();
+        }
+
+        window.onbeforeunload = function() {
+          localStorage.setItem('openedAt', '');
+        }
+      })
+    </script>
+  </head>
+  <body>
+    <button class="button">
+      CLICK!
+    </button>
+  </body>
+</html>
