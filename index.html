@@ -4,65 +4,11 @@
     <meta charset="utf-8">
     <title>Pooling</title>
     <script src="http://ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js"></script>
-    <script defer type="text/javascript">
-      $(document).on('ready', () => {
-        let isActive;
-        let id;
-        const ajax = () => {
-          $.ajax('/random').done((res) => {
-            console.log(res, new Date);
-            let notification = new Notification(`Hi there! ${new Date}`);
-            notification.onclick = event => {
-              event.preventDefault();
-              window.open('http://localhost:3000/admin/planner', '_blank');
-            }
-          });
-        };
-        const interval = 5000;
-
-        const openedAt = Date.now();
-        let _tabsId = localStorage.getItem('tabsId');
-        let tabsId = _tabsId ? JSON.parse(_tabsId) : [];
-        tabsId.push(openedAt);
-        localStorage.setItem('tabsId', JSON.stringify(tabsId));
-        localStorage.setItem('activeTabId', openedAt);
-  
-        function start() {
-          isActive = true;
-          id = setInterval(() => {
-            ajax();
-          }, interval);
-        };
-        start();
-
-        $('.button').on('click', ajax);
-
-        window.onstorage = function(e) {
-          // debugger
-          if (e.key !== 'activeTabId') { return };
-          if (+e.newValue === openedAt) {
-            start();
-          } else {
-            clearInterval(id)
-          } 
-        }
-
-        window.onbeforeunload = function() {
-          // debugger
-          if (isActive) {
-            let tabsId = JSON.parse(localStorage.getItem('tabsId'));            
-            let idx = tabsId.indexOf(openedAt);
-            tabsId.splice(idx, 1);
-            localStorage.setItem('tabsId', JSON.stringify(tabsId));
-            localStorage.setItem('activeTabId', tabsId[0]);
-          }
-        }
-      })
-    </script>
   </head>
   <body>
     <button class="button">
       CLICK!
     </button>
+    <script src="./index.js"></script>
   </body>
 </html>
