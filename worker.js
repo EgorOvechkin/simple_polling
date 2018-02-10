@@ -1,35 +1,32 @@
-let connected = false;
+const interval = 5000;
+let id;
+let connections = new Map();
 
-self.addEventListener('connect', e => {
-  
-  let id;
-  const interval = 5000;
+function start() {
+  if (id) {return;}
+  id = setInterval(() => {
+    console.log(Date.now());
+    fetch('/random')
+      .then(res => {
+        console.log(connections.size);
+        return res.json();
+      })
+      .then(res => connections.forEach(connection => connection.postMessage({name: 'notify', payload: res})));
+  }, interval);
+}
 
-  function start() {
-    clearInterval(id);
-    id = setInterval(() => {
-      console.log(Date.now());
-      fetch('/random')
-        .then(res => {
-          return res.json();
-        })
-        .then((res) => {
-          console.log(res);
-          let notification = new Notification(`Hi there! ${~~res}`);
-        });
-    }, interval);
-  }  
-  
-  e.source.addEventListener('message', ev => {
-    if (ev.data === 'start') {
-      if (connected === false) {
-        e.source.postMessage('worker init');
-        start();
-        connected = true;
-      } else {
-        e.source.postMessage('worker already inited');
-      }
+onconnect = function(e) {
+  const port = e.ports[0];
+
+  port.onmessage = function(e) {
+    if (e.data.name === 'start') {
+      connections.set(e.data.payload, port);
+      start();
     }
-  }, false);
-  e.source.start();
-}, false);
+    if (e.data.name === 'stop') {
+      connections.delete(e.data.payload);
+    }
+  };
+
+};
+

@@ -14,15 +14,9 @@ const requestHandler = (request, response) => {
       response.end();
     });
   }
-  if (request.url === '/planner/') {
-    fs.readFile('./index.html', (err, html) => {
-      if (err) {
-        console.log(err);
-      }
-      response.writeHeader(200, {'Content-Type': 'text/html'});  
-      response.write(html);
-      response.end();
-    });
+  if (request.url === '/planner') {
+    response.writeHeader(200, {'Content-Type': 'text/html'});
+    response.end('GOOd!');
   }
   if (request.url.match(/[a-z]+\.js/ig)) {
     fs.readFile(`./${request.url}`, (err, js) => {
